@@ -75,4 +75,4 @@ jobs:
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws_region: ${{ secrets.AWS_REGION }}
           cluster_name: ${{ secrets.CLUSTER_NAME }}
-          args: set image --record deployment/cwdb-api pod-name=${{ steps.build.outputs.IMAGE_URL }}
+          args: set image --record deployment/cwdb-api chillshyld/cwdb:${{ github.sha }}
