@@ -1,0 +1,18 @@
+# cluster.yaml
+# A cluster with two managed nodegroups
+---
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: chieh-managed-cluster
+  region: ap-southeast-1
+
+managedNodeGroups:
+  - name: chieh-managed-nodegroup-1
+    instanceType: t2.micro
+    minSize: 2
+    maxSize: 4
+    desiredCapacity: 3
+    ssh:
+      allow: true

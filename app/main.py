@@ -46,7 +46,7 @@ async_book_repo = AsyncBookRepository(
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to Complete Web Developer Bootcamp 2020 v0.0.1"}
+    return {"message": "Welcome to Complete Web Developer Bootcamp 2020 v0.0.2"}
 
 
 async def get_token_header(api_key: str = Header(...)):
