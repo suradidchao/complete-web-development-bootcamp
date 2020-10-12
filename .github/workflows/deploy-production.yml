@@ -77,6 +77,7 @@ jobs:
           access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           account_id: ${{ secrets.AWS_ACCOUNT_ID }}
+          repo: 724874779017.dkr.ecr.ap-southeast-1.amazonaws.com/cwdb-api
           region: ap-southeast-1
           path: docker-temp
 
