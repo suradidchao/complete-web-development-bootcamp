@@ -6,29 +6,29 @@ on:
       - master
 
 jobs:
-  test:
-    name: Run some test
-    runs-on: ubuntu-latest
+  # test:
+  #   name: Run some test
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2
 
-      - name: Start app
-        run: docker-compose up -d
+  #     - name: Start app
+  #       run: docker-compose up -d
 
-      - name: Restore data
-        run: |
-          docker cp ./seed/books.json complete-web-development-bootcamp-mongo:/tmp/books.json
-          docker exec complete-web-development-bootcamp-mongo mongoimport --uri "mongodb://cwdb101:!cwdb101!@complete-web-development-bootcamp-mongo:27017/bootcamp?authSource=admin&authMechanism=SCRAM-SHA-1" -c books --drop --file /tmp/books.json
+  #     - name: Restore data
+  #       run: |
+  #         docker cp ./seed/books.json complete-web-development-bootcamp-mongo:/tmp/books.json
+  #         docker exec complete-web-development-bootcamp-mongo mongoimport --uri "mongodb://cwdb101:!cwdb101!@complete-web-development-bootcamp-mongo:27017/bootcamp?authSource=admin&authMechanism=SCRAM-SHA-1" -c books --drop --file /tmp/books.json
 
-      - name: Integration test
-        id: run-newman
-        uses: anthonyvscode/newman-action@v1
-        with:
-          collection: postman/Complete-Web-Developer-Bootcamp-API.postman_collection.json
-          environment: postman/Bootcamp-Local.postman_environment.json
-          reporters: cli
+  #     - name: Integration test
+  #       id: run-newman
+  #       uses: anthonyvscode/newman-action@v1
+  #       with:
+  #         collection: postman/Complete-Web-Developer-Bootcamp-API.postman_collection.json
+  #         environment: postman/Bootcamp-Local.postman_environment.json
+  #         reporters: cli
 
   # build:
   #   name: Build and push image
@@ -71,47 +71,47 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Upload image to ECR
-        uses: appleboy/docker-ecr-action@master
+      - name: Build and push image
+        uses: Terranovax/aws-ecr-deploy@v1
         with:
-          access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          repo: cwdb-api
-          registry: 724874779017.dkr.ecr.ap-southeast-1.amazonaws.com
-          dockerfile: docker-temp/Dockerfile
+          access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          account_id: ${{ secrets.AWS_ACCOUNT_ID }}
+          region: ap-southeast-1
+          path: docker-temp
 
-  deploy:
-    name: deploy to cluster
-    runs-on: ubuntu-latest
-    needs: [build]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+  # deploy:
+  #   name: deploy to cluster
+  #   runs-on: ubuntu-latest
+  #   needs: [build]
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v2
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-southeast-1
+  #     - name: Configure AWS credentials
+  #       uses: aws-actions/configure-aws-credentials@v1
+  #       with:
+  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #         aws-region: ap-southeast-1
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+  #     - name: Login to Amazon ECR
+  #       id: login-ecr
+  #       uses: aws-actions/amazon-ecr-login@v1
 
-      - name: deploy to cluster
-        uses: kodermax/kubectl-aws-eks@master
-        env:
-          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: cwdb-api
-          IMAGE_TAG: ${{ github.sha }}
-        with:
-          args: set image deployment/$ECR_REPOSITORY $ECR_REPOSITORY=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+  #     - name: deploy to cluster
+  #       uses: kodermax/kubectl-aws-eks@master
+  #       env:
+  #         KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
+  #         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+  #         ECR_REPOSITORY: cwdb-api
+  #         IMAGE_TAG: ${{ github.sha }}
+  #       with:
+  #         args: set image deployment/$ECR_REPOSITORY $ECR_REPOSITORY=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-      - name: verify deployment
-        uses: kodermax/kubectl-aws-eks@master
-        env:
-          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
-        with:
-          args: rollout status deployment/cwdb-api
+  #     - name: verify deployment
+  #       uses: kodermax/kubectl-aws-eks@master
+  #       env:
+  #         KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
+  #       with:
+  #         args: rollout status deployment/cwdb-api
